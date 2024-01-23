@@ -36,8 +36,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
 
+    console.log("avatarLocalPath in user controller  --- ", avatarLocalPath);
     if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar is required");
+        throw new ApiError(400, "Avatar is required local path");
     }
 
     const avatar = await uploadFileOnCloud(avatarLocalPath);
@@ -48,9 +49,15 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const coverImageLocalPath = req.files?.coverImage[0]?.path;
-    const coverImage = await uploadFileOnCloud(coverImageLocalPath);
+    console.log(
+        "coverImageLocalPath in user controller  --- ",
+        avatarLocalPath
+    );
 
-    const user = User.create({
+    const coverImage = await uploadFileOnCloud(coverImageLocalPath);
+    console.log("coverImage image cloud URL -> ", avatar);
+
+    const user = await User.create({
         fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
@@ -59,7 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
         username: username.toLowerCase().trim(),
     });
 
-    const createdUser = User.findById(user._id).select(
+    const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     );
 
